@@ -1,0 +1,21 @@
+{
+  "name": "couple-memory-backend",
+  "version": "1.0.0",
+  "description": "Backend API for B612 couple memory page",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.3.0",
+    "cors": "^2.8.5",
+    "cos-nodejs-sdk-v5": "^2.14.6",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "multer": "^1.4.5-lts.1"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

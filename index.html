@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>写给宝贝的100封信 | B612星球的专属回忆</title>
+    <style>
+        :root {
+            --bg-deep: #0b132b;
+            --card-bg: rgba(28, 37, 65, 0.75); 
+            --text-main: #fdf6e3;
+            --accent: #f6ae2d; 
+            --font-cursive: 'KaiTi', 'Georgia', serif; 
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(rgba(11, 19, 43, 0.6), rgba(11, 19, 43, 0.8)),
+                        url("assets/bg.png") no-repeat;
+            background-size: 145% auto;
+            background-position: left center;
+            background-attachment: fixed;
+            color: var(--text-main);
+            font-family: var(--font-cursive);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        @media(min-aspect-ratio: 2/1) {
+            body { background-size: cover; background-position: 20% center; }
+        }
+
+        /* ================= 炫酷星球密码屏样式 ================= */
+        #lockScreen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, #1c2541 0%, #0b132b 100%);
+            z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+
+        /* 漂浮的发光星球 */
+        .planet-lock {
+            width: 120px; height: 120px; border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #f6ae2d, #d98014);
+            box-shadow: 0 0 50px rgba(246, 174, 45, 0.6), inset -15px -15px 25px rgba(0,0,0,0.5);
+            margin-bottom: 30px;
+            animation: float 4s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); box-shadow: 0 0 70px rgba(246, 174, 45, 0.8), inset -15px -15px 25px rgba(0,0,0,0.5); }
+        }
+
+        .lock-title { font-size: 2.2em; color: var(--accent); margin-bottom: 10px; text-shadow: 0 0 15px rgba(246,174,45,0.5); font-weight: bold;}
+        .lock-hint { color: #8fa0c1; margin-bottom: 30px; font-style: italic; letter-spacing: 2px;}
+        
+        .pwd-input-group { display: flex; gap: 15px; align-items: center; }
+        #pwdInput {
+            background: rgba(255,255,255,0.05); border: 2px solid rgba(246, 174, 45, 0.4);
+            color: var(--accent); font-size: 1.5em; text-align: center; letter-spacing: 10px;
+            padding: 12px 25px; border-radius: 30px; width: 220px; outline: none;
+            transition: all 0.3s; font-weight: bold;
+        }
+        #pwdInput:focus { border-color: var(--accent); box-shadow: 0 0 20px rgba(246,174,45,0.6); background: rgba(255,255,255,0.1);}
+        #pwdInput::placeholder { color: rgba(143, 160, 193, 0.3); font-size: 0.7em; letter-spacing: 2px;}
+
+        .unlock-btn {
+            background: var(--accent); color: #000; border: none; width: 55px; height: 55px;
+            border-radius: 50%; font-size: 1.5em; cursor: pointer; display: flex;
+            justify-content: center; align-items: center; box-shadow: 0 0 20px rgba(246,174,45,0.5);
+            transition: transform 0.2s;
+        }
+        .unlock-btn:hover { transform: scale(1.1); box-shadow: 0 0 30px rgba(246,174,45,0.8);}
+
+        /* 错误震动动画 */
+        .shake { animation: shake 0.4s; }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            50% { transform: translateX(10px); }
+            75% { transform: translateX(-10px); }
+        }
+
+        /* 解锁穿越渐隐动画 */
+        .portal-open { animation: portalOpen 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+        @keyframes portalOpen {
+            0% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(2.5); visibility: hidden; }
+        }
+
+        /* ================= 主体内容样式 ================= */
+        #mainApp {
+            display: none; /* 初始隐藏，解锁后显示 */
+            opacity: 0;
+            transition: opacity 1s ease-in;
+        }
+
+        .container { max-width: 1100px; margin: 0 auto; padding: 40px 20px; }
+
+        header { text-align: center; margin-bottom: 40px; display: flex; flex-direction: column; align-items: center; }
+        h1 { font-size: 2.8em; color: var(--accent); text-shadow: 0 0 15px rgba(246, 174, 45, 0.5); margin: 10px 0; display: flex; align-items: center; gap: 15px; }
+
+        .header-icon {
+            width: 75px; height: 75px; border-radius: 50%;
+            border: 3px solid var(--accent); box-shadow: 0 0 12px rgba(246, 174, 45, 0.6);
+            background-image: url("assets/bg.png");
+            background-repeat: no-repeat;
+        }
+        .header-icon.prince { background-size: 360% auto; background-position: 100% 8%; }
+        .header-icon.fox { background-size: 360% auto; background-position: 100% 92%; transform: scaleX(-1); }
+
+        .subtitle { font-size: 1.2em; color: #f2e7c3; font-style: italic; margin-top: 10px; }
+
+        .timer-section {
+            background: var(--card-bg); border: 1px solid rgba(246, 174, 45, 0.3); border-radius: 15px;
+            padding: 20px; text-align: center; margin-bottom: 40px; backdrop-filter: blur(10px); box-shadow: 0 5px 20px rgba(0,0,0,0.5); position: relative;
+        }
+        .timer-title { color: #8fa0c1; font-size: 1.1em; margin-bottom: 10px; }
+        .timer-numbers { font-size: 2em; color: var(--accent); font-weight: bold; text-shadow: 0 0 10px rgba(246, 174, 45, 0.4); font-family: monospace; }
+        .timer-numbers span { font-size: 0.6em; color: #fdf6e3; margin: 0 5px; }
+        .btn-set-date {
+            position: absolute; top: 15px; right: 15px; background: transparent; border: 1px solid #8fa0c1; color: #8fa0c1;
+            padding: 5px 10px; font-size: 0.8em; cursor: pointer; border-radius: 20px;
+        }
+        .btn-set-date:hover { color: var(--accent); border-color: var(--accent); }
+
+        .actions { display: flex; justify-content: center; gap: 15px; margin-bottom: 40px; flex-wrap: wrap; }
+        button.primary-btn {
+            background: linear-gradient(135deg, var(--accent) 0%, rgba(246, 174, 45, 0.6) 100%);
+            color: #000; border: none; padding: 12px 25px; border-radius: 30px; font-size: 1.1em; font-weight: bold; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(246, 174, 45, 0.3); transition: transform 0.2s; font-family: inherit;
+        }
+        button.primary-btn:hover { transform: translateY(-3px); }
+
+        .tabs {
+            display: flex; justify-content: center; gap: 10px; margin-bottom: 30px;
+            border-bottom: 1px solid rgba(246, 174, 45, 0.2); padding-bottom: 10px; flex-wrap: wrap;
+        }
+        .tab-btn {
+            background: transparent; border: none; color: #8fa0c1; font-size: 1.2em; padding: 10px 20px;
+            cursor: pointer; border-radius: 10px 10px 0 0; transition: all 0.3s; font-family: inherit; position: relative;
+        }
+        .tab-btn:hover { color: var(--accent); background: rgba(255,255,255,0.05); }
+        .tab-btn.active { color: var(--accent); font-weight: bold; }
+        .tab-btn.active::after {
+            content: ''; position: absolute; bottom: -11px; left: 0; width: 100%; height: 3px;
+            background: var(--accent); border-radius: 3px 3px 0 0; box-shadow: 0 0 10px var(--accent);
+        }
+        .tab-content { display: none; animation: fadeIn 0.4s ease-out; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .transparent-card {
+            background: transparent; border: 1px solid rgba(246, 174, 45, 0.3); border-radius: 12px;
+            padding: 15px; backdrop-filter: blur(5px); transition: transform 0.3s, border-color 0.3s; margin-bottom: 15px; position: relative;
+        }
+        .transparent-card:hover { transform: translateY(-3px); border-color: rgba(246, 174, 45, 0.7); }
+        .card-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 8px;}
+        .action-btn { background: none; border: none; color: #8fa0c1; cursor: pointer; font-size: 0.85em; font-family: inherit; padding: 0;}
+        .action-btn:hover { color: var(--accent); }
+
+        .transparent-card img, .transparent-card video { 
+            width: 100%; max-height: 250px; object-fit: cover; border-radius: 8px; margin-bottom: 10px; background: rgba(0,0,0,0.3);
+        }
+        .transparent-card video { object-fit: contain; }
+
+        .timeline-container { max-width: 700px; margin: 0 auto; }
+        .timeline { border-left: 2px solid var(--accent); padding-left: 30px; margin-left: 10px; }
+        .milestone {
+            position: relative; margin-bottom: 25px; background: transparent; 
+            padding: 20px; border-radius: 10px; border: 1px solid rgba(246, 174, 45, 0.3); backdrop-filter: blur(5px);
+        }
+        .milestone::before {
+            content: ''; position: absolute; left: -37px; top: 25px; width: 12px; height: 12px;
+            border-radius: 50%; background: var(--accent); box-shadow: 0 0 10px var(--accent);
+        }
+        .m-date { color: var(--accent); font-size: 0.9em; font-weight: bold; }
+        .m-title { font-size: 1.3em; margin: 8px 0; color: #fff;}
+        .m-desc { color: #ddd; font-size: 1em; line-height: 1.6; }
+
+        .card-date { color: var(--accent); font-size: 0.85em; margin-bottom: 8px; }
+        .card-content { line-height: 1.6; white-space: pre-wrap; font-size: 0.95em; color: #eee;}
+
+        .message-bubble { border-radius: 20px 20px 20px 0; border-color: rgba(143, 160, 193, 0.4); max-width: 600px; margin: 0 auto 20px auto; }
+        .message-author { font-size: 0.8em; color: #8fa0c1; margin-bottom: 5px;}
+
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .list-container { display: flex; flex-direction: column; gap: 15px; }
+
+        /* 弹窗通用样式 */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); z-index: 99; }
+        .modal {
+            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: var(--bg-deep); border: 1px solid var(--accent); border-radius: 15px;
+            padding: 25px; width: 90%; max-width: 450px; z-index: 100; box-shadow: 0 0 30px rgba(0,0,0,0.8);
+        }
+        .modal h2 { margin-top: 0; color: var(--accent); font-size: 1.3em;}
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; color: #f2e7c3; font-size: 0.9em;}
+        input[type="text"], input[type="date"], input[type="file"], input[type="password"], textarea {
+            width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2);
+            color: white; padding: 10px; border-radius: 8px; box-sizing: border-box; font-family: inherit;
+        }
+        textarea { height: 80px; resize: vertical; }
+        .btn-group { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;}
+        .btn-cancel { background: transparent; border: 1px solid #f2e7c3; color: #f2e7c3; padding: 6px 15px; border-radius: 20px; cursor: pointer; font-family: inherit;}
+        .btn-confirm { background: var(--accent); border: none; color: #000; padding: 6px 15px; border-radius: 20px; font-weight: bold; cursor: pointer; font-family: inherit;}
+    </style>
+</head>
+<body>
+
+    <div id="lockScreen">
+        <div class="planet-lock"></div>
+        <div class="lock-title">B612 星球通行证</div>
+        <div class="lock-hint">“只有被驯服的人，才知道这扇门的密码”</div>
+        <div class="pwd-input-group">
+            <input type="password" id="pwdInput" placeholder="输入密码" autocomplete="off">
+            <button class="unlock-btn" onclick="checkPassword()">🗝️</button>
+        </div>
+    </div>
+
+    <div id="mainApp">
+        <div class="container">
+            <header>
+                <h1>
+                    <div class="header-icon prince"></div>
+                    写给宝贝的100封信
+                    <div class="header-icon fox"></div>
+                </h1>
+                <div class="subtitle">“真正重要的东西，用眼睛是看不见的，只有用心才能看得清。”</div>
+            </header>
+
+            <div class="timer-section">
+                <button class="btn-set-date" onclick="setStartDate()">设置相遇日</button>
+                <div class="timer-title">🪐 距离我们的故事开始，已经过去：</div>
+                <div class="timer-numbers" id="timerDisplay">
+                    00<span>天</span>00<span>时</span>00<span>分</span>00<span>秒</span>
+                </div>
+            </div>
+
+            <div class="actions">
+                <button class="primary-btn" onclick="openModal('letter'); switchTab('tab-letters')">+ 投递信件</button>
+                <button class="primary-btn" onclick="openModal('milestone'); switchTab('tab-milestones')">+ 大事记</button>
+                <button class="primary-btn" onclick="openModal('moment'); switchTab('tab-moments')">+ 心动瞬间</button>
+                <button class="primary-btn" onclick="openModal('message'); switchTab('tab-messages')">+ 悄悄话留言</button>
+            </div>
+
+            <nav class="tabs">
+                <button class="tab-btn active" onclick="switchTab('tab-letters')" id="btn-tab-letters">✉️ 时光信箱</button>
+                <button class="tab-btn" onclick="switchTab('tab-milestones')" id="btn-tab-milestones">🌹 我们的时光轴</button>
+                <button class="tab-btn" onclick="switchTab('tab-moments')" id="btn-tab-moments">✨ 心动瞬间</button>
+                <button class="tab-btn" onclick="switchTab('tab-messages')" id="btn-tab-messages">💬 星球留言板</button>
+            </nav>
+
+            <div class="tab-content active" id="tab-letters"><div class="grid-container" id="lettersGrid"></div></div>
+            <div class="tab-content" id="tab-milestones"><div class="timeline-container"><div class="timeline" id="milestoneTimeline"></div></div></div>
+            <div class="tab-content" id="tab-moments"><div class="grid-container" id="momentsGrid"></div></div>
+            <div class="tab-content" id="tab-messages"><div class="list-container" id="messageBoard"></div></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="overlay" onclick="closeAllModals()"></div>
+
+    <div class="modal" id="letterModal">
+        <h2 id="letterTitle">投递新信件 🌠</h2>
+        <div class="form-group"><label>上传回忆 (图/视频)</label><input type="file" id="letterMedia" accept="image/*,video/*"></div>
+        <div class="form-group"><label>想说的话</label><textarea id="letterContent"></textarea></div>
+        <div class="btn-group">
+            <button class="btn-cancel" onclick="closeAllModals()">取消</button>
+            <button class="btn-confirm" onclick="saveData('letter')">保存</button>
+        </div>
+    </div>
+
+    <div class="modal" id="milestoneModal">
+        <h2 id="milestoneTitle">记录重要时刻 🚩</h2>
+        <div class="form-group"><label>日期</label><input type="date" id="milestoneDate"></div>
+        <div class="form-group"><label>标题</label><input type="text" id="milestoneTitleInput"></div>
+        <div class="form-group"><label>描述细节</label><textarea id="milestoneContent"></textarea></div>
+        <div class="form-group"><label>相关影像 (图/视频)</label><input type="file" id="milestoneMedia" accept="image/*,video/*"></div>
+        <div class="btn-group">
+            <button class="btn-cancel" onclick="closeAllModals()">取消</button>
+            <button class="btn-confirm" onclick="saveData('milestone')">保存</button>
+        </div>
+    </div>
+
+    <div class="modal" id="momentModal">
+        <h2 id="momentTitle">捕捉心动 ✨</h2>
+        <div class="form-group"><label>上传瞬间 (图/视频)</label><input type="file" id="momentMedia" accept="image/*,video/*"></div>
+        <div class="form-group"><label>心情记录</label><textarea id="momentContent"></textarea></div>
+        <div class="btn-group">
+            <button class="btn-cancel" onclick="closeAllModals()">取消</button>
+            <button class="btn-confirm" onclick="saveData('moment')">保存</button>
+        </div>
+    </div>
+
+    <div class="modal" id="messageModal">
+        <h2 id="messageTitle">留个悄悄话 💬</h2>
+        <div class="form-group"><label>是谁留的言？(可选)</label><input type="text" id="messageAuthor" placeholder="例如：小王子"></div>
+        <div class="form-group"><label>内容</label><textarea id="messageContent"></textarea></div>
+        <div class="form-group"><label>配图或短视频 (可选)</label><input type="file" id="messageMedia" accept="image/*,video/*"></div>
+        <div class="btn-group">
+            <button class="btn-cancel" onclick="closeAllModals()">取消</button>
+            <button class="btn-confirm" onclick="saveData('message')">发布</button>
+        </div>
+    </div>
+
+    <script>
+        /* ================= 配置与状态 ================= */
+        const API_BASE = ''; // 同源部署，Nginx 反代 /api 到 :3000
+        const TYPE_MAP = {
+            letter:    { table: 'letters',    listVar: 'letters'    },
+            milestone: { table: 'milestones', listVar: 'milestones' },
+            moment:    { table: 'moments',    listVar: 'moments'    },
+            message:   { table: 'messages',   listVar: 'messages'   },
+        };
+
+        let letters = [], milestones = [], moments = [], messages = [];
+        let startDate = '2024-01-01';
+        let editingIds = { letter: null, milestone: null, moment: null, message: null };
+
+        function getPassword()  { return sessionStorage.getItem('b612_pwd') || ''; }
+        function savePassword(p){ sessionStorage.setItem('b612_pwd', p); }
+        function clearPassword(){ sessionStorage.removeItem('b612_pwd'); }
+
+        async function api(path, options = {}) {
+            const headers = { 'X-Access-Password': getPassword(), ...(options.headers || {}) };
+            if (options.body && !(options.body instanceof FormData) && typeof options.body !== 'string') {
+                headers['Content-Type'] = 'application/json';
+                options.body = JSON.stringify(options.body);
+            }
+            const res = await fetch(API_BASE + path, { ...options, headers });
+            if (res.status === 401) {
+                clearPassword();
+                location.reload();
+                throw new Error('unauthorized');
+            }
+            if (!res.ok) {
+                const txt = await res.text();
+                throw new Error(`API ${res.status}: ${txt}`);
+            }
+            return res.json();
+        }
+
+        /* ================= 密码门禁系统 ================= */
+        const lockScreen = document.getElementById('lockScreen');
+        const mainApp = document.getElementById('mainApp');
+        const pwdInput = document.getElementById('pwdInput');
+
+        // 已有缓存密码 -> 试着直接拉数据
+        if (getPassword()) {
+            bootstrap(false).catch(() => { clearPassword(); pwdInput.focus(); });
+        } else {
+            pwdInput.focus();
+        }
+
+        pwdInput.addEventListener('keypress', e => { if (e.key === 'Enter') checkPassword(); });
+
+        async function checkPassword() {
+            const pwd = pwdInput.value;
+            savePassword(pwd);
+            try {
+                await bootstrap(true);
+            } catch (e) {
+                clearPassword();
+                pwdInput.classList.add('shake');
+                pwdInput.value = '';
+                pwdInput.placeholder = '密码错误，再想想哦';
+                setTimeout(() => pwdInput.classList.remove('shake'), 400);
+            }
+        }
+
+        async function bootstrap(withAnimation) {
+            const data = await api('/api/bootstrap');
+            letters    = data.letters    || [];
+            milestones = data.milestones || [];
+            moments    = data.moments    || [];
+            messages   = data.messages   || [];
+            startDate  = data.startDate  || '2024-01-01';
+            renderAll();
+            updateTimer();
+            unlockSuccess(withAnimation);
+        }
+
+        function unlockSuccess(withAnimation) {
+            if (withAnimation) {
+                lockScreen.classList.add('portal-open');
+                setTimeout(() => {
+                    lockScreen.style.display = 'none';
+                    mainApp.style.display = 'block';
+                    setTimeout(() => mainApp.style.opacity = '1', 50);
+                }, 1000);
+            } else {
+                lockScreen.style.display = 'none';
+                mainApp.style.display = 'block';
+                mainApp.style.opacity = '1';
+            }
+        }
+
+        /* ================= 渲染 ================= */
+        function renderMedia(url, type) {
+            if (!url) return '';
+            const t = type || (/\.(mp4|webm|mov|m4v)(\?|$)/i.test(url) ? 'video' : 'image');
+            if (t === 'video') return `<video src="${url}" controls preload="metadata"></video>`;
+            return `<img src="${url}" loading="lazy">`;
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            document.getElementById('btn-' + tabId).classList.add('active');
+        }
+
+        function updateTimer() {
+            const start = new Date(startDate).getTime();
+            const now = new Date().getTime();
+            const diff = now - start;
+            if (diff > 0) {
+                const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const s = Math.floor((diff % (1000 * 60)) / 1000);
+                document.getElementById('timerDisplay').innerHTML = `${d}<span>天</span>${h.toString().padStart(2, '0')}<span>时</span>${m.toString().padStart(2, '0')}<span>分</span>${s.toString().padStart(2, '0')}<span>秒</span>`;
+            }
+        }
+        setInterval(updateTimer, 1000);
+
+        async function setStartDate() {
+            const date = prompt('请输入你们相遇日 (YYYY-MM-DD)', startDate);
+            if (date && !isNaN(new Date(date).getTime())) {
+                try {
+                    const res = await api('/api/config/start-date', { method: 'PUT', body: { startDate: date } });
+                    startDate = res.startDate;
+                    updateTimer();
+                } catch (e) { alert('保存失败：' + e.message); }
+            }
+        }
+
+        function renderAll() {
+            const lGrid = document.getElementById('lettersGrid'); lGrid.innerHTML = '';
+            [...letters].reverse().forEach((l, i) => {
+                const num = letters.length - i;
+                lGrid.innerHTML += `
+                    <div class="transparent-card">
+                        ${renderMedia(l.media, l.mediaType)}
+                        <div class="card-date">第 ${num} 封信 · ${l.date}</div>
+                        <div class="card-content">${l.content}</div>
+                        <div class="card-actions">
+                            <button onclick="openModal('letter', ${l.id})" class="action-btn">✏️ 编辑</button>
+                            <button onclick="deleteData('letter', ${l.id})" class="action-btn">🥀 删除</button>
+                        </div>
+                    </div>`;
+            });
+
+            const mTimeline = document.getElementById('milestoneTimeline'); mTimeline.innerHTML = '';
+            [...milestones].sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(m => {
+                mTimeline.innerHTML += `
+                    <div class="milestone">
+                        <div class="m-date">${m.date}</div>
+                        <div class="m-title">${m.title}</div>
+                        ${renderMedia(m.media, m.mediaType)}
+                        <div class="m-desc">${m.content}</div>
+                        <div class="card-actions" style="margin-top:10px; border:none; padding:0;">
+                            <button onclick="openModal('milestone', ${m.id})" class="action-btn">✏️ 编辑</button>
+                            <button onclick="deleteData('milestone', ${m.id})" class="action-btn">🥀 删除</button>
+                        </div>
+                    </div>`;
+            });
+
+            const moGrid = document.getElementById('momentsGrid'); moGrid.innerHTML = '';
+            [...moments].reverse().forEach(m => {
+                moGrid.innerHTML += `
+                    <div class="transparent-card">
+                        ${renderMedia(m.media, m.mediaType)}
+                        <div class="card-date">${m.date}</div>
+                        <div class="card-content">${m.content}</div>
+                        <div class="card-actions">
+                            <button onclick="openModal('moment', ${m.id})" class="action-btn">✏️ 编辑</button>
+                            <button onclick="deleteData('moment', ${m.id})" class="action-btn">🥀 删除</button>
+                        </div>
+                    </div>`;
+            });
+
+            const msgBoard = document.getElementById('messageBoard'); msgBoard.innerHTML = '';
+            [...messages].reverse().forEach(msg => {
+                msgBoard.innerHTML += `
+                    <div class="transparent-card message-bubble">
+                        <div class="message-author">💬 ${msg.author || '匿名星球居民'} · ${msg.date}</div>
+                        ${renderMedia(msg.media, msg.mediaType)}
+                        <div class="card-content">${msg.content}</div>
+                        <div class="card-actions">
+                            <button onclick="openModal('message', ${msg.id})" class="action-btn">✏️ 编辑</button>
+                            <button onclick="deleteData('message', ${msg.id})" class="action-btn">🥀 删除</button>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        function closeAllModals() {
+            document.getElementById('overlay').style.display = 'none';
+            ['letter', 'milestone', 'moment', 'message'].forEach(type => {
+                document.getElementById(`${type}Modal`).style.display = 'none';
+                editingIds[type] = null;
+            });
+        }
+
+        function findById(type, id) {
+            const arr = { letter: letters, milestone: milestones, moment: moments, message: messages }[type];
+            return arr.find(x => x.id === id);
+        }
+
+        function openModal(type, id = null) {
+            editingIds[type] = id;
+            const isEdit = id !== null;
+            if (document.getElementById(`${type}Media`)) document.getElementById(`${type}Media`).value = '';
+
+            if (type === 'letter') {
+                document.getElementById('letterTitle').innerText = isEdit ? "修改信件 🌠" : "投递新信件 🌠";
+                document.getElementById('letterContent').value = isEdit ? findById('letter', id).content : '';
+            } else if (type === 'milestone') {
+                document.getElementById('milestoneTitle').innerText = isEdit ? "修改时刻 🚩" : "记录重要时刻 🚩";
+                const m = isEdit ? findById('milestone', id) : {};
+                document.getElementById('milestoneDate').value = isEdit ? m.date : new Date().toISOString().split('T')[0];
+                document.getElementById('milestoneTitleInput').value = isEdit ? m.title : '';
+                document.getElementById('milestoneContent').value = isEdit ? m.content : '';
+            } else if (type === 'moment') {
+                document.getElementById('momentTitle').innerText = isEdit ? "修改瞬间 ✨" : "捕捉心动 ✨";
+                document.getElementById('momentContent').value = isEdit ? findById('moment', id).content : '';
+            } else if (type === 'message') {
+                document.getElementById('messageTitle').innerText = isEdit ? "修改留言 💬" : "留个悄悄话 💬";
+                const msg = isEdit ? findById('message', id) : {};
+                document.getElementById('messageAuthor').value = isEdit ? (msg.author || '') : '';
+                document.getElementById('messageContent').value = isEdit ? msg.content : '';
+            }
+
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById(`${type}Modal`).style.display = 'block';
+        }
+
+        async function uploadFile(file) {
+            const form = new FormData();
+            form.append('file', file);
+            return api('/api/upload', { method: 'POST', body: form });
+        }
+
+        async function saveData(type) {
+            const meta = TYPE_MAP[type];
+            const isEdit = editingIds[type] !== null;
+            const contentEl = document.getElementById(`${type}Content`);
+            const content = contentEl ? contentEl.value : '';
+
+            let mTitle = '', mDate = '', msgAuthor = '';
+            if (type === 'milestone') {
+                mTitle = document.getElementById('milestoneTitleInput').value;
+                mDate  = document.getElementById('milestoneDate').value;
+                if (!mDate || !mTitle) return alert('日期和标题是必须要填的哦~');
+            }
+            if (type === 'message') {
+                msgAuthor = document.getElementById('messageAuthor').value;
+                if (!content) return alert('留言内容不能为空哦~');
+            }
+
+            const fileInput = document.getElementById(`${type}Media`);
+            if ((type === 'letter' || type === 'moment') && !content && fileInput.files.length === 0 && !isEdit) {
+                return alert('写点什么或者发点影像吧~');
+            }
+
+            const saveBtn = document.querySelector(`#${type}Modal .btn-confirm`);
+            const originalLabel = saveBtn.innerText;
+            saveBtn.disabled = true;
+            saveBtn.innerText = '保存中...';
+
+            try {
+                let media, mediaType;
+                if (fileInput && fileInput.files.length > 0) {
+                    saveBtn.innerText = '上传中...';
+                    const up = await uploadFile(fileInput.files[0]);
+                    media = up.url;
+                    mediaType = up.type;
+                }
+
+                const payload = { content };
+                if (type === 'milestone') { payload.title = mTitle; payload.date = mDate; }
+                if (type === 'message')   { payload.author = msgAuthor; }
+                if (media !== undefined)  { payload.media = media; payload.mediaType = mediaType; }
+
+                let saved;
+                if (isEdit) {
+                    saved = await api(`/api/${meta.table}/${editingIds[type]}`, { method: 'PUT', body: payload });
+                } else {
+                    saved = await api(`/api/${meta.table}`, { method: 'POST', body: payload });
+                }
+
+                const arr = { letter: letters, milestone: milestones, moment: moments, message: messages }[type];
+                if (isEdit) {
+                    const idx = arr.findIndex(x => x.id === editingIds[type]);
+                    arr[idx] = saved;
+                } else {
+                    arr.push(saved);
+                }
+                renderAll();
+                closeAllModals();
+            } catch (e) {
+                alert('保存失败：' + e.message);
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.innerText = originalLabel;
+            }
+        }
+
+        async function deleteData(type, id) {
+            if (!confirm('确认删除这条记录吗？删除了就找不回来啦 🥀')) return;
+            const meta = TYPE_MAP[type];
+            try {
+                await api(`/api/${meta.table}/${id}`, { method: 'DELETE' });
+                if (type === 'letter')    letters    = letters.filter(x => x.id !== id);
+                if (type === 'milestone') milestones = milestones.filter(x => x.id !== id);
+                if (type === 'moment')    moments    = moments.filter(x => x.id !== id);
+                if (type === 'message')   messages   = messages.filter(x => x.id !== id);
+                renderAll();
+            } catch (e) {
+                alert('删除失败：' + e.message);
+            }
+        }
+    </script>
+</body>
+</html>
